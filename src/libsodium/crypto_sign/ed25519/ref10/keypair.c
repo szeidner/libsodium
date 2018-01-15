@@ -1,7 +1,7 @@
 
 #include <string.h>
 
-#include "crypto_hash_sha512.h"
+#include "crypto_generichash.h" // switch to blake2b (generichash) for hashing in ed25519
 #include "crypto_scalarmult_curve25519.h"
 #include "crypto_sign_ed25519.h"
 #include "sign_ed25519_ref10.h"
@@ -18,7 +18,7 @@ crypto_sign_ed25519_seed_keypair(unsigned char *pk, unsigned char *sk,
 #ifdef ED25519_NONDETERMINISTIC
     memmove(sk, seed, 32);
 #else
-    crypto_hash_sha512(sk, seed, 32);
+    crypto_generichash_blake2b(sk, seed, 32);
 #endif
     sk[0] &= 248;
     sk[31] &= 127;
@@ -74,12 +74,12 @@ int
 crypto_sign_ed25519_sk_to_curve25519(unsigned char *curve25519_sk,
                                      const unsigned char *ed25519_sk)
 {
-    unsigned char h[crypto_hash_sha512_BYTES];
+    unsigned char h[crypto_generichash_BYTES];
 
 #ifdef ED25519_NONDETERMINISTIC
     memcpy(h, ed25519_sk, 32);
 #else
-    crypto_hash_sha512(h, ed25519_sk, 32);
+    crypto_generichash_blake2b(h, ed25519_sk, 32);
 #endif
     h[0] &= 248;
     h[31] &= 127;

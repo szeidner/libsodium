@@ -2,7 +2,7 @@
 #define crypto_sign_ed25519_H
 
 #include <stddef.h>
-#include "crypto_hash_sha512.h"
+#include "crypto_generichash.h"
 #include "export.h"
 
 #ifdef __cplusplus
@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 typedef struct crypto_sign_ed25519ph_state {
-    crypto_hash_sha512_state hs;
+    crypto_generichash_state hs;
 } crypto_sign_ed25519ph_state;
 
 SODIUM_EXPORT

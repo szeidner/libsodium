@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "crypto_hash_sha512.h"
+#include "crypto_generichash.h" // switch to blake2b (generichash) for hashing in ed25519
 #include "crypto_sign_ed25519.h"
 #include "crypto_verify_32.h"
 #include "sign_ed25519_ref10.h"
@@ -17,7 +17,7 @@ _crypto_sign_ed25519_verify_detached(const unsigned char *sig,
                                      const unsigned char *pk,
                                      int prehashed)
 {
-    crypto_hash_sha512_state hs;
+    crypto_generichash_state hs;
     unsigned char            h[64];
     unsigned char            rcheck[32];
     ge25519_p3               A;
@@ -41,10 +41,10 @@ _crypto_sign_ed25519_verify_detached(const unsigned char *sig,
         return -1;
     }
     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
-    crypto_hash_sha512_update(&hs, sig, 32);
-    crypto_hash_sha512_update(&hs, pk, 32);
-    crypto_hash_sha512_update(&hs, m, mlen);
-    crypto_hash_sha512_final(&hs, h);
+    crypto_generichash_update(&hs, sig, 32);
+    crypto_generichash_update(&hs, pk, 32);
+    crypto_generichash_update(&hs, m, mlen);
+    crypto_generichash_final(&hs, h);
     sc25519_reduce(h);
 
     ge25519_double_scalarmult_vartime(&R, h, &A, sig + 32);

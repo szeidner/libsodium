@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "crypto_hash_sha512.h"
+#include "crypto_generichash.h"
 #include "crypto_sign_edwards25519sha512batch.h"
 #include "crypto_verify_32.h"
 #include "private/ed25519_ref10.h"
@@ -17,7 +17,7 @@ crypto_sign_edwards25519sha512batch_keypair(unsigned char *pk,
     ge25519_p3 A;
 
     randombytes_buf(sk, 32);
-    crypto_hash_sha512(sk, sk, 32);
+    crypto_generichash(sk, sk, 32);
     sk[0] &= 248;
     sk[31] &= 127;
     sk[31] |= 64;
@@ -34,26 +34,26 @@ crypto_sign_edwards25519sha512batch(unsigned char       *sm,
                                     unsigned long long   mlen,
                                     const unsigned char *sk)
 {
-    crypto_hash_sha512_state hs;
+    crypto_generichash_state hs;
     unsigned char            nonce[64];
     unsigned char            hram[64];
     unsigned char            sig[64];
     ge25519_p3               A;
     ge25519_p3               R;
 
-    crypto_hash_sha512_init(&hs);
-    crypto_hash_sha512_update(&hs, sk + 32, 32);
-    crypto_hash_sha512_update(&hs, m, mlen);
-    crypto_hash_sha512_final(&hs, nonce);
+    crypto_generichash_init(&hs);
+    crypto_generichash_update(&hs, sk + 32, 32);
+    crypto_generichash_update(&hs, m, mlen);
+    crypto_generichash_final(&hs, nonce);
     ge25519_scalarmult_base(&A, sk);
     ge25519_p3_tobytes(sig + 32, &A);
     sc25519_reduce(nonce);
     ge25519_scalarmult_base(&R, nonce);
     ge25519_p3_tobytes(sig, &R);
-    crypto_hash_sha512_init(&hs);
-    crypto_hash_sha512_update(&hs, sig, 32);
-    crypto_hash_sha512_update(&hs, m, mlen);
-    crypto_hash_sha512_final(&hs, hram);
+    crypto_generichash_init(&hs);
+    crypto_generichash_update(&hs, sig, 32);
+    crypto_generichash_update(&hs, m, mlen);
+    crypto_generichash_final(&hs, hram);
     sc25519_reduce(hram);
     sc25519_muladd(sig + 32, hram, nonce, sk);
     sodium_memzero(hram, sizeof hram);
@@ -97,7 +97,7 @@ crypto_sign_edwards25519sha512batch_open(unsigned char       *m,
         return -1;
     }
     ge25519_p3_to_cached(&Ai, &A);
-    crypto_hash_sha512(h, sm, mlen + 32);
+    crypto_generichash(h, sm, mlen + 32);
     sc25519_reduce(h);
     ge25519_scalarmult(&cs3, h, &R);
     ge25519_add(&csa, &cs3, &Ai);

@@ -1,7 +1,7 @@
 #ifndef sign_ed25519_ref10_H
 #define sign_ed25519_ref10_H
 
-void _crypto_sign_ed25519_ref10_hinit(crypto_hash_sha512_state *hs,
+void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs,
                                       int prehashed);
 
 int _crypto_sign_ed25519_detached(unsigned char *sig,
