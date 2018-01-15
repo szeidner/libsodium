@@ -61,7 +61,7 @@ crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk)
 int
 crypto_sign_ed25519ph_init(crypto_sign_ed25519ph_state *state)
 {
-    crypto_generichash_init(&state->hs);
+    crypto_generichash_init(&state->hs,'\0',0,crypto_generichash_BYTES);
     return 0;
 }
 
@@ -80,7 +80,7 @@ crypto_sign_ed25519ph_final_create(crypto_sign_ed25519ph_state *state,
 {
     unsigned char ph[crypto_generichash_BYTES];
 
-    crypto_generichash_final(&state->hs, ph);
+    crypto_generichash_final(&state->hs, ph, crypto_generichash_BYTES);
 
     return _crypto_sign_ed25519_detached(sig, siglen_p, ph, sizeof ph, sk, 1);
 }
@@ -92,7 +92,7 @@ crypto_sign_ed25519ph_final_verify(crypto_sign_ed25519ph_state *state,
 {
     unsigned char ph[crypto_generichash_BYTES];
 
-    crypto_generichash_final(&state->hs, ph);
+    crypto_generichash_final(&state->hs, ph, crypto_generichash_BYTES);
 
     return _crypto_sign_ed25519_verify_detached(sig, ph, sizeof ph, pk, 1);
 }

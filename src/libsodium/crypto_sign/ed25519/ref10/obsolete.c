@@ -17,7 +17,7 @@ crypto_sign_edwards25519sha512batch_keypair(unsigned char *pk,
     ge25519_p3 A;
 
     randombytes_buf(sk, 32);
-    crypto_generichash(sk, sk, 32);
+    crypto_generichash(sk, 32, sk, 32, '\0', 0);
     sk[0] &= 248;
     sk[31] &= 127;
     sk[31] |= 64;
@@ -41,19 +41,19 @@ crypto_sign_edwards25519sha512batch(unsigned char       *sm,
     ge25519_p3               A;
     ge25519_p3               R;
 
-    crypto_generichash_init(&hs);
+    crypto_generichash_init(&hs, '\0', 0, 32);
     crypto_generichash_update(&hs, sk + 32, 32);
     crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, nonce);
+    crypto_generichash_final(&hs, nonce, 32);
     ge25519_scalarmult_base(&A, sk);
     ge25519_p3_tobytes(sig + 32, &A);
     sc25519_reduce(nonce);
     ge25519_scalarmult_base(&R, nonce);
     ge25519_p3_tobytes(sig, &R);
-    crypto_generichash_init(&hs);
+    crypto_generichash_init(&hs, '\0', 0, 32);
     crypto_generichash_update(&hs, sig, 32);
     crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, hram);
+    crypto_generichash_final(&hs, hram, 32);
     sc25519_reduce(hram);
     sc25519_muladd(sig + 32, hram, nonce, sk);
     sodium_memzero(hram, sizeof hram);
@@ -97,7 +97,7 @@ crypto_sign_edwards25519sha512batch_open(unsigned char       *m,
         return -1;
     }
     ge25519_p3_to_cached(&Ai, &A);
-    crypto_generichash(h, sm, mlen + 32);
+    crypto_generichash(h, 32, sm, mlen + 32, '\0', 0);
     sc25519_reduce(h);
     ge25519_scalarmult(&cs3, h, &R);
     ge25519_add(&csa, &cs3, &Ai);

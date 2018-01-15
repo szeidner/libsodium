@@ -44,7 +44,7 @@ _crypto_sign_ed25519_verify_detached(const unsigned char *sig,
     crypto_generichash_update(&hs, sig, 32);
     crypto_generichash_update(&hs, pk, 32);
     crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, h);
+    crypto_generichash_final(&hs, h, 32);
     sc25519_reduce(h);
 
     ge25519_double_scalarmult_vartime(&R, h, &A, sig + 32);
