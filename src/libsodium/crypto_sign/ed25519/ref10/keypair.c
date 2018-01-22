@@ -9,6 +9,25 @@
 #include "randombytes.h"
 #include "utils.h"
 
+// sk is the seed, pk is the public that's populated
+int
+crypto_derive_public_from_secret_impl(unsigned char *sk, unsigned char *pk) {  
+    ge25519_p3 A;    
+    unsigned char hash[64];
+    crypto_generichash_blake2b_state state;
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, sk, 32);
+    crypto_generichash_blake2b_final(&state, hash, 64);  
+   
+    hash[0] &= 248;    
+    hash[31] &= 127;    
+    hash[31] |= 64;
+    ge25519_scalarmult_base(&A, hash);    
+    ge25519_p3_tobytes(pk, &A);    
+    return 0;
+}
+
+
 int
 crypto_sign_ed25519_seed_keypair(unsigned char *pk, unsigned char *sk,
                                  const unsigned char *seed)
