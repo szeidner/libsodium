@@ -11,7 +11,7 @@
 
 // sk is the seed, pk is the public that's populated
 int
-crypto_derive_public_from_secret_impl(unsigned char *sk, unsigned char *pk) {  
+crypto_derive_public_from_secret_impl(unsigned char *pk, const unsigned char *sk) {  
     ge25519_p3 A;    
     unsigned char hash[64];
     crypto_generichash_blake2b_state state;
