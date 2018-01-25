@@ -53,8 +53,22 @@ crypto_sign_ed25519_sk_to_seed(unsigned char *seed, const unsigned char *sk)
 int
 crypto_sign_ed25519_sk_to_pk(unsigned char *pk, const unsigned char *sk)
 {
-    memmove(pk, sk + crypto_sign_ed25519_SEEDBYTES,
-            crypto_sign_ed25519_PUBLICKEYBYTES);
+    //memmove(pk, sk + crypto_sign_ed25519_SEEDBYTES,
+    //        crypto_sign_ed25519_PUBLICKEYBYTES);
+    //return 0;
+	
+	ge25519_p3 A;    
+    unsigned char hash[64];
+    crypto_generichash_blake2b_state state;
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, sk, 32);
+    crypto_generichash_blake2b_final(&state, hash, 64);  
+   
+    hash[0] &= 248;    
+    hash[31] &= 127;    
+    hash[31] |= 64;
+    ge25519_scalarmult_base(&A, hash);    
+    ge25519_p3_tobytes(pk, &A);    
     return 0;
 }
 
