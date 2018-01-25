@@ -4,7 +4,12 @@
 //#include "crypto_hash_sha512.h"
 #include "crypto_generichash.h" // switch to blake2b (generichash) for hashing in ed25519
 #include "crypto_sign_ed25519.h"
+#include "crypto_scalarmult_curve25519.h"
 #include "ref10/sign_ed25519_ref10.h"
+#include "private/ed25519_ref10.h"
+#include "randombytes.h"
+#include "utils.h"
+
 
 size_t
 crypto_sign_ed25519ph_statebytes(void)
