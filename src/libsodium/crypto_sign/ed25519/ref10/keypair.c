@@ -37,7 +37,12 @@ crypto_sign_ed25519_seed_keypair(unsigned char *pk, unsigned char *sk,
 #ifdef ED25519_NONDETERMINISTIC
     memmove(sk, seed, 32);
 #else
-    crypto_generichash_blake2b(sk, 32, seed, 32, '\0',0);
+    //crypto_generichash_blake2b(sk, 32, seed, 32, NULL,0);
+    crypto_generichash_blake2b_state state;
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, seed, 32);
+    crypto_generichash_blake2b_final(&state, sk, 64);  
+
 #endif
     sk[0] &= 248;
     sk[31] &= 127;
