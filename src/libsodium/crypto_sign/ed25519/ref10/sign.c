@@ -1,25 +1,24 @@
 
 #include <string.h>
 
-#include "crypto_hash_sha512.h"
+#include "crypto_generichash.h"
 #include "crypto_sign_ed25519.h"
 #include "sign_ed25519_ref10.h"
 #include "private/ed25519_ref10.h"
 #include "randombytes.h"
 #include "utils.h"
 
-void
-_crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
+void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
 {
     static const unsigned char DOM2PREFIX[32 + 2] = {
         'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
         'n', 'o', ' ',
         'E', 'd', '2', '5', '5', '1', '9', ' ',
-        'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0
-    };
+        'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
 
     crypto_generichash_init(hs, '\0', 0, 32);
-    if (prehashed) {
+    if (prehashed)
+    {
         crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
     }
 }
@@ -40,13 +39,41 @@ _crypto_sign_ed25519_synthetic_r_hv(crypto_generichash_state *hs,
                                     const unsigned char sk[64])
 {
     static const unsigned char B[32] = {
-        0x58, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66,
-        0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66,
-        0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66,
-        0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66,
+        0x58,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
     };
-    static const unsigned char zeros[128] = { 0x00 };
-    static const unsigned char empty_labelset[3] = { 0x02, 0x00, 0x00 };
+    static const unsigned char zeros[128] = {0x00};
+    static const unsigned char empty_labelset[3] = {0x02, 0x00, 0x00};
 
     crypto_generichash_update(hs, B, 32);
     crypto_generichash_update(hs, empty_labelset, 3);
@@ -61,16 +88,15 @@ _crypto_sign_ed25519_synthetic_r_hv(crypto_generichash_state *hs,
 }
 #endif
 
-int
-_crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
-                              const unsigned char *m, unsigned long long mlen,
-                              const unsigned char *sk, int prehashed)
+int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
+                                  const unsigned char *m, unsigned long long mlen,
+                                  const unsigned char *sk, int prehashed)
 {
     crypto_generichash_state hs;
-    unsigned char            az[64];
-    unsigned char            nonce[64];
-    unsigned char            hram[64];
-    ge25519_p3               R;
+    unsigned char az[64];
+    unsigned char nonce[64];
+    unsigned char hram[64];
+    ge25519_p3 R;
 
     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
 
@@ -103,24 +129,23 @@ _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
     sodium_memzero(az, sizeof az);
     sodium_memzero(nonce, sizeof nonce);
 
-    if (siglen_p != NULL) {
+    if (siglen_p != NULL)
+    {
         *siglen_p = 64U;
     }
     return 0;
 }
 
-int
-crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
-                             const unsigned char *m, unsigned long long mlen,
-                             const unsigned char *sk)
+int crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
+                                 const unsigned char *m, unsigned long long mlen,
+                                 const unsigned char *sk)
 {
     return _crypto_sign_ed25519_detached(sig, siglen_p, m, mlen, sk, 0);
 }
 
-int
-crypto_sign_ed25519(unsigned char *sm, unsigned long long *smlen_p,
-                    const unsigned char *m, unsigned long long mlen,
-                    const unsigned char *sk)
+int crypto_sign_ed25519(unsigned char *sm, unsigned long long *smlen_p,
+                        const unsigned char *m, unsigned long long mlen,
+                        const unsigned char *sk)
 {
     unsigned long long siglen;
 
@@ -128,8 +153,10 @@ crypto_sign_ed25519(unsigned char *sm, unsigned long long *smlen_p,
     /* LCOV_EXCL_START */
     if (crypto_sign_ed25519_detached(
             sm, &siglen, sm + crypto_sign_ed25519_BYTES, mlen, sk) != 0 ||
-        siglen != crypto_sign_ed25519_BYTES) {
-        if (smlen_p != NULL) {
+        siglen != crypto_sign_ed25519_BYTES)
+    {
+        if (smlen_p != NULL)
+        {
             *smlen_p = 0;
         }
         memset(sm, 0, mlen + crypto_sign_ed25519_BYTES);
@@ -137,7 +164,8 @@ crypto_sign_ed25519(unsigned char *sm, unsigned long long *smlen_p,
     }
     /* LCOV_EXCL_STOP */
 
-    if (smlen_p != NULL) {
+    if (smlen_p != NULL)
+    {
         *smlen_p = mlen + siglen;
     }
     return 0;
