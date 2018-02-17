@@ -88,7 +88,7 @@ _crypto_sign_ed25519_synthetic_r_hv(crypto_generichash_state *hs,
 }
 #endif
 
-int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
+int _crypto_sign_ed25519_detached(unsigned char *sm, unsigned long long *smlen_p,
                                   const unsigned char *m, unsigned long long mlen,
                                   const unsigned char *sk, int prehashed)
 {
