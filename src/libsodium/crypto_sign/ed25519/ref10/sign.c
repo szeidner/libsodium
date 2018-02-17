@@ -10,17 +10,17 @@
 
 void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
 {
-    static const unsigned char DOM2PREFIX[32 + 2] = {
-        'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
-        'n', 'o', ' ',
-        'E', 'd', '2', '5', '5', '1', '9', ' ',
-        'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
+    // static const unsigned char DOM2PREFIX[32 + 2] = {
+    //     'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
+    //     'n', 'o', ' ',
+    //     'E', 'd', '2', '5', '5', '1', '9', ' ',
+    //     'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
 
-    crypto_generichash_init(hs, '\0', 0, 64);
-    if (prehashed)
-    {
-        crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
-    }
+    crypto_generichash_init(hs, '\0', 0, 32);
+    // if (prehashed)
+    // {
+    //     crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
+    // }
 }
 
 static inline void
