@@ -67,31 +67,6 @@ static void car25519(gf o)
     }
 }
 
-static void add(gf p[4], gf q[4])
-{
-    gf a, b, c, d, t, e, f, g, h;
-
-    Z(a, p[1], p[0]);
-    Z(t, q[1], q[0]);
-    M(a, a, t);
-    A(b, p[0], p[1]);
-    A(t, q[0], q[1]);
-    M(b, b, t);
-    M(c, p[3], q[3]);
-    M(c, c, D2);
-    M(d, p[2], q[2]);
-    A(d, d, d);
-    Z(e, b, a);
-    Z(f, d, c);
-    A(g, d, c);
-    A(h, b, a);
-
-    M(p[0], e, f);
-    M(p[1], h, g);
-    M(p[2], g, f);
-    M(p[3], e, h);
-}
-
 static void A(gf o, const gf a, const gf b)
 {
     int i;
@@ -431,6 +406,31 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     //         *siglen_p = 64U;
     //     }
     //     return 0;
+}
+
+static void add(gf p[4], gf q[4])
+{
+    gf a, b, c, d, t, e, f, g, h;
+
+    Z(a, p[1], p[0]);
+    Z(t, q[1], q[0]);
+    M(a, a, t);
+    A(b, p[0], p[1]);
+    A(t, q[0], q[1]);
+    M(b, b, t);
+    M(c, p[3], q[3]);
+    M(c, c, D2);
+    M(d, p[2], q[2]);
+    A(d, d, d);
+    Z(e, b, a);
+    Z(f, d, c);
+    A(g, d, c);
+    A(h, b, a);
+
+    M(p[0], e, f);
+    M(p[1], h, g);
+    M(p[2], g, f);
+    M(p[3], e, h);
 }
 
 int crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
