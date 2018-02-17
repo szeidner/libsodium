@@ -171,6 +171,13 @@ static void pack25519(u8 *o, const gf n)
     }
 }
 
+static u8 par25519(const gf a)
+{
+    u8 d[32];
+    pack25519(d, a);
+    return d[0] & 1;
+}
+
 static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
 
 static void modL(u8 *r, i64 x[64])
@@ -232,6 +239,31 @@ static void pack(u8 *r, gf p[4])
     M(ty, p[1], zi);
     pack25519(r, ty);
     r[31] ^= par25519(tx) << 7;
+}
+
+static void add(gf p[4], gf q[4])
+{
+    gf a, b, c, d, t, e, f, g, h;
+
+    Z(a, p[1], p[0]);
+    Z(t, q[1], q[0]);
+    M(a, a, t);
+    A(b, p[0], p[1]);
+    A(t, q[0], q[1]);
+    M(b, b, t);
+    M(c, p[3], q[3]);
+    M(c, c, D2);
+    M(d, p[2], q[2]);
+    A(d, d, d);
+    Z(e, b, a);
+    Z(f, d, c);
+    A(g, d, c);
+    A(h, b, a);
+
+    M(p[0], e, f);
+    M(p[1], h, g);
+    M(p[2], g, f);
+    M(p[3], e, h);
 }
 
 void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
@@ -406,31 +438,6 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     //         *siglen_p = 64U;
     //     }
     //     return 0;
-}
-
-static void add(gf p[4], gf q[4])
-{
-    gf a, b, c, d, t, e, f, g, h;
-
-    Z(a, p[1], p[0]);
-    Z(t, q[1], q[0]);
-    M(a, a, t);
-    A(b, p[0], p[1]);
-    A(t, q[0], q[1]);
-    M(b, b, t);
-    M(c, p[3], q[3]);
-    M(c, c, D2);
-    M(d, p[2], q[2]);
-    A(d, d, d);
-    Z(e, b, a);
-    Z(f, d, c);
-    A(g, d, c);
-    A(h, b, a);
-
-    M(p[0], e, f);
-    M(p[1], h, g);
-    M(p[2], g, f);
-    M(p[3], e, h);
 }
 
 int crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
