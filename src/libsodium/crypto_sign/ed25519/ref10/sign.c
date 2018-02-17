@@ -109,7 +109,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
 #endif
 
     crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, nonce, 64);
+    crypto_generichash_final(&hs, nonce, 32);
 
     memmove(sig + 32, sk + 32, 32);
 
@@ -118,7 +118,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     ge25519_p3_tobytes(sig, &R);
 
     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
-    crypto_generichash_update(&hs, sig, 64);
+    crypto_generichash_update(&hs, sig, 32);
     crypto_generichash_update(&hs, m, mlen);
     crypto_generichash_final(&hs, hram, 32);
 
