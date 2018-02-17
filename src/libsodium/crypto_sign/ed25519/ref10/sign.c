@@ -119,7 +119,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
 
     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
     crypto_generichash_update(&hs, sig, 64);
-    crypto_generichash_update(&hs, m, mlen);
+    //crypto_generichash_update(&hs, m, mlen);
     crypto_generichash_final(&hs, hram, 32);
 
     sc25519_reduce(hram);
