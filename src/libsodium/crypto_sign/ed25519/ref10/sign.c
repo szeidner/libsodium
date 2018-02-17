@@ -109,23 +109,6 @@ static void cswap(gf p[4], gf q[4], u8 b)
     sel25519(p[i], q[i], b);
 }
 
-static void scalarmult(gf p[4], gf q[4], const u8 *s)
-{
-    int i;
-    set25519(p[0], gf0);
-    set25519(p[1], gf1);
-    set25519(p[2], gf1);
-    set25519(p[3], gf0);
-    for (i = 255; i >= 0; --i)
-    {
-        u8 b = (s[i / 8] >> (i & 7)) & 1;
-        cswap(p, q, b);
-        add(q, p);
-        add(p, p);
-        cswap(p, q, b);
-    }
-}
-
 static void inv25519(gf o, const gf i)
 {
     gf c;
@@ -221,16 +204,6 @@ static void reduce(u8 *r)
     modL(r, x);
 }
 
-static void scalarbase(gf p[4], const u8 *s)
-{
-    gf q[4];
-    set25519(q[0], X);
-    set25519(q[1], Y);
-    set25519(q[2], gf1);
-    M(q[3], X, Y);
-    scalarmult(p, q, s);
-}
-
 static void pack(u8 *r, gf p[4])
 {
     gf tx, ty, zi;
@@ -264,6 +237,33 @@ static void add(gf p[4], gf q[4])
     M(p[1], h, g);
     M(p[2], g, f);
     M(p[3], e, h);
+}
+
+static void scalarmult(gf p[4], gf q[4], const u8 *s)
+{
+    int i;
+    set25519(p[0], gf0);
+    set25519(p[1], gf1);
+    set25519(p[2], gf1);
+    set25519(p[3], gf0);
+    for (i = 255; i >= 0; --i)
+    {
+        u8 b = (s[i / 8] >> (i & 7)) & 1;
+        cswap(p, q, b);
+        add(q, p);
+        add(p, p);
+        cswap(p, q, b);
+    }
+}
+
+static void scalarbase(gf p[4], const u8 *s)
+{
+    gf q[4];
+    set25519(q[0], X);
+    set25519(q[1], Y);
+    set25519(q[2], gf1);
+    M(q[3], X, Y);
+    scalarmult(p, q, s);
 }
 
 void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
