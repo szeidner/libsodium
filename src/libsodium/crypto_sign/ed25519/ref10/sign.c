@@ -36,86 +36,6 @@ static u64 dl64(const u8 *x)
     return u;
 }
 
-void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
-{
-    // static const unsigned char DOM2PREFIX[32 + 2] = {
-    //     'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
-    //     'n', 'o', ' ',
-    //     'E', 'd', '2', '5', '5', '1', '9', ' ',
-    //     'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
-
-    crypto_generichash_init(hs, '\0', 0, 32);
-    // if (prehashed)
-    // {
-    //     crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
-    // }
-}
-
-static inline void
-_crypto_sign_ed25519_clamp(unsigned char k[32])
-{
-    k[0] &= 248;
-    k[31] &= 127;
-    k[31] |= 64;
-}
-
-#ifdef ED25519_NONDETERMINISTIC
-/* r = hash(B || empty_labelset || Z || pad1 || k || pad2 || empty_labelset || K || extra || M) (mod q) */
-static void
-_crypto_sign_ed25519_synthetic_r_hv(crypto_generichash_state *hs,
-                                    unsigned char Z[32],
-                                    const unsigned char sk[64])
-{
-    static const unsigned char B[32] = {
-        0x58,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-        0x66,
-    };
-    static const unsigned char zeros[128] = {0x00};
-    static const unsigned char empty_labelset[3] = {0x02, 0x00, 0x00};
-
-    crypto_generichash_update(hs, B, 32);
-    crypto_generichash_update(hs, empty_labelset, 3);
-    randombytes_buf(Z, 32);
-    crypto_generichash_update(hs, Z, 32);
-    crypto_generichash_update(hs, zeros, 128 - (32 + 3 + 32) % 128);
-    crypto_generichash_update(hs, sk, 32);
-    crypto_generichash_update(hs, zeros, 128 - 32 % 128);
-    crypto_generichash_update(hs, empty_labelset, 3);
-    crypto_generichash_update(hs, sk + 32, 32);
-    /* empty extra */
-}
-#endif
-
 static void set25519(gf r, const gf a)
 {
     int i;
@@ -276,6 +196,8 @@ static void pack25519(u8 *o, const gf n)
     }
 }
 
+static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
+
 static void modL(u8 *r, i64 x[64])
 {
     i64 carry, i, j;
@@ -336,6 +258,86 @@ static void pack(u8 *r, gf p[4])
     pack25519(r, ty);
     r[31] ^= par25519(tx) << 7;
 }
+
+void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
+{
+    // static const unsigned char DOM2PREFIX[32 + 2] = {
+    //     'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
+    //     'n', 'o', ' ',
+    //     'E', 'd', '2', '5', '5', '1', '9', ' ',
+    //     'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
+
+    crypto_generichash_init(hs, '\0', 0, 32);
+    // if (prehashed)
+    // {
+    //     crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
+    // }
+}
+
+static inline void
+_crypto_sign_ed25519_clamp(unsigned char k[32])
+{
+    k[0] &= 248;
+    k[31] &= 127;
+    k[31] |= 64;
+}
+
+#ifdef ED25519_NONDETERMINISTIC
+/* r = hash(B || empty_labelset || Z || pad1 || k || pad2 || empty_labelset || K || extra || M) (mod q) */
+static void
+_crypto_sign_ed25519_synthetic_r_hv(crypto_generichash_state *hs,
+                                    unsigned char Z[32],
+                                    const unsigned char sk[64])
+{
+    static const unsigned char B[32] = {
+        0x58,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+        0x66,
+    };
+    static const unsigned char zeros[128] = {0x00};
+    static const unsigned char empty_labelset[3] = {0x02, 0x00, 0x00};
+
+    crypto_generichash_update(hs, B, 32);
+    crypto_generichash_update(hs, empty_labelset, 3);
+    randombytes_buf(Z, 32);
+    crypto_generichash_update(hs, Z, 32);
+    crypto_generichash_update(hs, zeros, 128 - (32 + 3 + 32) % 128);
+    crypto_generichash_update(hs, sk, 32);
+    crypto_generichash_update(hs, zeros, 128 - 32 % 128);
+    crypto_generichash_update(hs, empty_labelset, 3);
+    crypto_generichash_update(hs, sk + 32, 32);
+    /* empty extra */
+}
+#endif
 
 int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
                                   const unsigned char *m, unsigned long long mlen,
