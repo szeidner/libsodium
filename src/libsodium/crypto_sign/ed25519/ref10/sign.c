@@ -381,7 +381,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     pack(sig, p);
 
     for (i = 32; i < 64; ++i)
-        sig[i] = sk[i];
+        sig[i] = pk[i - 32];
 
     crypto_generichash_blake2b_init(&state, NULL, 0, 64);
     crypto_generichash_blake2b_update(&state, sig, mlen + 64);
