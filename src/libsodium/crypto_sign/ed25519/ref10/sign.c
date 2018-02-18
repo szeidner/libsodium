@@ -10,10 +10,10 @@
 
 // #define FOR(i, n) for (i = 0; i < n; ++i)
 
-// typedef unsigned char u8;
-// typedef unsigned long long u64;
-// typedef long long i64;
-// typedef i64 gf[16];
+typedef unsigned char u8;
+typedef unsigned long long u64;
+typedef long long i64;
+typedef i64 gf[16];
 
 // static const u8
 //     _0[16],
@@ -161,38 +161,38 @@
 //     return d[0] & 1;
 // }
 
-// static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
+static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
 
-// static void modL(u8 *r, i64 x[64])
-// {
-//     i64 carry, i, j;
-//     for (i = 63; i >= 32; --i)
-//     {
-//         carry = 0;
-//         for (j = i - 32; j < i - 12; ++j)
-//         {
-//             x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-//             carry = (x[j] + 128) >> 8;
-//             x[j] -= carry << 8;
-//         }
-//         x[j] += carry;
-//         x[i] = 0;
-//     }
-//     carry = 0;
-//     for (j = 0; j < 32; ++j)
-//     {
-//         x[j] += carry - (x[31] >> 4) * L[j];
-//         carry = x[j] >> 8;
-//         x[j] &= 255;
-//     }
-//     for (j = 0; j < 32; ++j)
-//         x[j] -= carry * L[j];
-//     for (i = 0; i < 32; ++j)
-//     {
-//         x[i + 1] += x[i] >> 8;
-//         r[i] = x[i] & 255;
-//     }
-// }
+static void modL(u8 *r, i64 x[64])
+{
+    i64 carry, i, j;
+    for (i = 63; i >= 32; --i)
+    {
+        carry = 0;
+        for (j = i - 32; j < i - 12; ++j)
+        {
+            x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+            carry = (x[j] + 128) >> 8;
+            x[j] -= carry << 8;
+        }
+        x[j] += carry;
+        x[i] = 0;
+    }
+    carry = 0;
+    for (j = 0; j < 32; ++j)
+    {
+        x[j] += carry - (x[31] >> 4) * L[j];
+        carry = x[j] >> 8;
+        x[j] &= 255;
+    }
+    for (j = 0; j < 32; ++j)
+        x[j] -= carry * L[j];
+    for (i = 0; i < 32; ++j)
+    {
+        x[i + 1] += x[i] >> 8;
+        r[i] = x[i] & 255;
+    }
+}
 
 // static void reduce(u8 *r)
 // {
@@ -354,7 +354,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     unsigned char az[64];
     unsigned char nonce[64];
     unsigned char hram[64];
-    long long i;
+    long long i, j, x[64];
     ge25519_p3 R;
 
     crypto_generichash_blake2b_init(&state, NULL, 0, 64);
@@ -388,7 +388,16 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     crypto_generichash_blake2b_final(&state, hram, 64);
 
     sc25519_reduce(hram);
-    sc25519_muladd(sig + 32, hram, az, nonce);
+
+    for (i = 0; i < 64; ++i)
+        x[i] = 0;
+    for (i = 0; i < 32; ++i)
+        x[i] = (u64)nonce[i];
+    for (i = 0; i < 32; ++i)
+        for (j = 0; j < 32; ++j)
+            x[i + j] += hram[i] * (u64)az[j];
+    //sc25519_muladd(sig + 32, hram, az, nonce);
+    modL(sig + 32, x);
 
     sodium_memzero(az, sizeof az);
     sodium_memzero(nonce, sizeof nonce);
