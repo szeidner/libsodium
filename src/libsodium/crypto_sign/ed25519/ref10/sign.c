@@ -350,7 +350,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
                                   const unsigned char *m, unsigned long long mlen,
                                   const unsigned char *sk, int prehashed)
 {
-    u8 d[64], h[64], r[64];
+    u8 d[64], h[64], r[64], sig_copy[64];
     i64 i, j, x[64];
     gf p[4];
 
@@ -395,6 +395,12 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
         for (j = 0; j < 32; ++j)
             x[i + j] += h[i] * (u64)d[j];
     modL(sig + 32, x);
+
+    for (i = 0; i < 64; ++i)
+        sig_copy[i] = sig[i];
+
+    unsigned char sig[64];
+    memcopy(sig, sig_copy, sig_copy.len);
 
     return 0;
 
