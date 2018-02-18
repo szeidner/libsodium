@@ -350,59 +350,59 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
                                   const unsigned char *m, unsigned long long mlen,
                                   const unsigned char *sk, int prehashed)
 {
-    // crypto_generichash_blake2b_state state;
-    // unsigned char az[64];
-    // unsigned char nonce[64];
-    // unsigned char hram[64];
-    // long long i, j, x[64];
-    // gf p[4];
-    // unsigned char *pk;
-    // crypto_sign_ed25519_sk_to_pk(pk, sk);
+    crypto_generichash_blake2b_state state;
+    unsigned char az[64];
+    unsigned char nonce[64];
+    unsigned char hram[64];
+    long long i, j, x[64];
+    gf p[4];
+    unsigned char *pk;
+    crypto_sign_ed25519_sk_to_pk(pk, sk);
 
-    // crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    // crypto_generichash_blake2b_update(&state, sk, 32);
-    // crypto_generichash_blake2b_final(&state, az, 64);
-    // az[0] &= 248;
-    // az[31] &= 127;
-    // az[31] |= 64;
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, sk, 32);
+    crypto_generichash_blake2b_final(&state, az, 64);
+    az[0] &= 248;
+    az[31] &= 127;
+    az[31] |= 64;
 
-    // *siglen_p = mlen + 64;
-    // for (i = 0; i < mlen; ++i)
-    //     sig[64 + i] = m[i];
-    // for (i = 0; i < 32; ++i)
-    //     sig[32 + i] = az[32 + i];
+    *siglen_p = mlen + 64;
+    for (i = 0; i < mlen; ++i)
+        sig[64 + i] = m[i];
+    for (i = 0; i < 32; ++i)
+        sig[32 + i] = az[32 + i];
 
-    // crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    // crypto_generichash_blake2b_update(&state, sig + 32, mlen + 32);
-    // crypto_generichash_blake2b_final(&state, nonce, 64);
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, sig + 32, mlen + 32);
+    crypto_generichash_blake2b_final(&state, nonce, 64);
 
-    // reduce(nonce);
-    // scalarbase(p, nonce);
-    // pack(sig, p);
+    reduce(nonce);
+    scalarbase(p, nonce);
+    pack(sig, p);
 
-    // for (i = 32; i < 64; ++i)
-    //     sig[i] = pk[i - 32];
+    for (i = 32; i < 64; ++i)
+        sig[i] = pk[i - 32];
 
-    // crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    // crypto_generichash_blake2b_update(&state, sig, mlen + 64);
-    // crypto_generichash_blake2b_final(&state, hram, 64);
+    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state, sig, mlen + 64);
+    crypto_generichash_blake2b_final(&state, hram, 64);
 
-    // reduce(hram);
+    reduce(hram);
 
-    // FOR(i, 64)
-    // x[i] = 0;
-    // FOR(i, 32)
-    // x[i] = (u64)nonce[i];
-    // FOR(i, 32)
-    // FOR(j, 32)
-    // x[i + j] += hram[i] * (u64)az[j];
+    FOR(i, 64)
+    x[i] = 0;
+    FOR(i, 32)
+    x[i] = (u64)nonce[i];
+    FOR(i, 32)
+    FOR(j, 32)
+    x[i + j] += hram[i] * (u64)az[j];
 
-    // modL(sig + 32, x);
+    modL(sig + 32, x);
 
-    // sodium_memzero(az, sizeof az);
-    // sodium_memzero(nonce, sizeof nonce);
+    sodium_memzero(az, sizeof az);
+    sodium_memzero(nonce, sizeof nonce);
 
-    // return 0;
+    return 0;
 
     // u8 d[64], h[64], r[64], sig_copy[64];
     // i64 i, j, x[64];
@@ -457,50 +457,50 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
 
     // return 0;
 
-    crypto_generichash_state hs;
-    unsigned char az[64];
-    unsigned char nonce[64];
-    unsigned char hram[64];
-    ge25519_p3 R;
-    unsigned char *pk;
-    crypto_sign_ed25519_sk_to_pk(pk, sk);
+    //     crypto_generichash_state hs;
+    //     unsigned char az[64];
+    //     unsigned char nonce[64];
+    //     unsigned char hram[64];
+    //     ge25519_p3 R;
+    //     unsigned char *pk;
+    //     crypto_sign_ed25519_sk_to_pk(pk, sk);
 
-    _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
+    //     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
 
-#ifdef ED25519_NONDETERMINISTIC
-    memcpy(az, sk, 32);
-    _crypto_sign_ed25519_synthetic_r_hv(&hs, nonce, az);
-#else
-    crypto_generichash(az, 64, sk, 32, '\0', 0);
-    crypto_generichash_update(&hs, az + 32, 32);
-#endif
+    // #ifdef ED25519_NONDETERMINISTIC
+    //     memcpy(az, sk, 32);
+    //     _crypto_sign_ed25519_synthetic_r_hv(&hs, nonce, az);
+    // #else
+    //     crypto_generichash(az, 64, sk, 32, '\0', 0);
+    //     crypto_generichash_update(&hs, az + 32, 32);
+    // #endif
 
-    crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, nonce, 64);
+    //     crypto_generichash_update(&hs, m, mlen);
+    //     crypto_generichash_final(&hs, nonce, 64);
 
-    memmove(sig + 32, sk + 32, 32);
+    //     memmove(sig + 32, sk + 32, 32);
 
-    sc25519_reduce(nonce);
-    ge25519_scalarmult_base(&R, nonce);
-    ge25519_p3_tobytes(sig, &R);
+    //     sc25519_reduce(nonce);
+    //     ge25519_scalarmult_base(&R, nonce);
+    //     ge25519_p3_tobytes(sig, &R);
 
-    _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
-    crypto_generichash_update(&hs, sig, 64);
-    crypto_generichash_update(&hs, m, mlen);
-    crypto_generichash_final(&hs, hram, 64);
+    //     _crypto_sign_ed25519_ref10_hinit(&hs, prehashed);
+    //     crypto_generichash_update(&hs, sig, 64);
+    //     crypto_generichash_update(&hs, m, mlen);
+    //     crypto_generichash_final(&hs, hram, 64);
 
-    sc25519_reduce(hram);
-    _crypto_sign_ed25519_clamp(az);
-    sc25519_muladd(sig + 32, hram, az, nonce);
+    //     sc25519_reduce(hram);
+    //     _crypto_sign_ed25519_clamp(az);
+    //     sc25519_muladd(sig + 32, hram, az, nonce);
 
-    sodium_memzero(az, sizeof az);
-    sodium_memzero(nonce, sizeof nonce);
+    //     sodium_memzero(az, sizeof az);
+    //     sodium_memzero(nonce, sizeof nonce);
 
-    if (siglen_p != NULL)
-    {
-        *siglen_p = 64U;
-    }
-    return 0;
+    //     if (siglen_p != NULL)
+    //     {
+    //         *siglen_p = 64U;
+    //     }
+    //     return 0;
 }
 
 int crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen_p,
