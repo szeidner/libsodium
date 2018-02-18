@@ -373,9 +373,9 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     crypto_generichash_blake2b_update(&state_r, sig + 32, mlen + 32);
     crypto_generichash_blake2b_final(&state_r, r, 64);
 
-    reduce(r);
-    scalarbase(p, r);
-    pack(sig, p);
+    // reduce(r);
+    // scalarbase(p, r);
+    // pack(sig, p);
 
     for (i = 0; i < 32; ++i)
         sig[i + 32] = sk[i + 32];
@@ -385,7 +385,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     crypto_generichash_blake2b_update(&state_h, sig, mlen + 64);
     crypto_generichash_blake2b_final(&state_h, h, 64);
 
-    reduce(h);
+    // reduce(h);
 
     for (i = 0; i < 64; ++i)
         x[i] = 0;
@@ -396,10 +396,10 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
             x[i + j] += h[i] * (u64)d[j];
     modL(sig + 32, x);
 
-    for (i = 0; i < 64; ++i)
-        sig_copy[i] = sig[i];
+    // for (i = 0; i < 64; ++i)
+    //     sig_copy[i] = sig[i];
 
-    memcopy(sig, sig_copy, 64);
+    // memcopy(sig, sig_copy, 64);
 
     return 0;
 
