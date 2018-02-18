@@ -354,10 +354,10 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     i64 i, j, x[64];
     gf p[4];
 
-    crypto_generichash_blake2b_state state;
-    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&state, sk, 32);
-    crypto_generichash_blake2b_final(&state, d, 64);
+    crypto_generichash_blake2b_state state_d;
+    crypto_generichash_blake2b_init(&state_d, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state_d, sk, 32);
+    crypto_generichash_blake2b_final(&state_d, d, 64);
     d[0] &= 248;
     d[31] &= 127;
     d[31] |= 64;
@@ -368,9 +368,10 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     for (i = 0; i < 32; ++i)
         sig[32 + i] = d[32 + i];
 
-    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&state, sig + 32, mlen + 32);
-    crypto_generichash_blake2b_final(&state, r, 64);
+    crypto_generichash_blake2b_state state_r;
+    crypto_generichash_blake2b_init(&state_r, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state_r, sig + 32, mlen + 32);
+    crypto_generichash_blake2b_final(&state_r, r, 64);
 
     reduce(r);
     scalarbase(p, r);
@@ -379,9 +380,10 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     for (i = 0; i < 32; ++i)
         sig[i + 32] = sk[i + 32];
 
-    crypto_generichash_blake2b_init(&state, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&state, sig, mlen + 64);
-    crypto_generichash_blake2b_final(&state, h, 64);
+    crypto_generichash_blake2b_state state_h;
+    crypto_generichash_blake2b_init(&state_h, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&state_h, sig, mlen + 64);
+    crypto_generichash_blake2b_final(&state_h, h, 64);
 
     reduce(h);
 
