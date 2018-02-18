@@ -266,28 +266,28 @@
 //     scalarmult(p, q, s);
 // }
 
-// void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
-// {
-//     // static const unsigned char DOM2PREFIX[32 + 2] = {
-//     //     'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
-//     //     'n', 'o', ' ',
-//     //     'E', 'd', '2', '5', '5', '1', '9', ' ',
-//     //     'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
+void _crypto_sign_ed25519_ref10_hinit(crypto_generichash_state *hs, int prehashed)
+{
+    static const unsigned char DOM2PREFIX[32 + 2] = {
+        'S', 'i', 'g', 'E', 'd', '2', '5', '5', '1', '9', ' ',
+        'n', 'o', ' ',
+        'E', 'd', '2', '5', '5', '1', '9', ' ',
+        'c', 'o', 'l', 'l', 'i', 's', 'i', 'o', 'n', 's', 1, 0};
 
-//     crypto_generichash_init(hs, '\0', 0, 32);
-//     // if (prehashed)
-//     // {
-//     //     crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
-//     // }
-// }
+    crypto_generichash_init(hs, '\0', 0, 32);
+    if (prehashed)
+    {
+        crypto_generichash_update(hs, DOM2PREFIX, sizeof DOM2PREFIX);
+    }
+}
 
-// static inline void
-// _crypto_sign_ed25519_clamp(unsigned char k[32])
-// {
-//     k[0] &= 248;
-//     k[31] &= 127;
-//     k[31] |= 64;
-// }
+static inline void
+_crypto_sign_ed25519_clamp(unsigned char k[32])
+{
+    k[0] &= 248;
+    k[31] &= 127;
+    k[31] |= 64;
+}
 
 #ifdef ED25519_NONDETERMINISTIC
 /* r = hash(B || empty_labelset || Z || pad1 || k || pad2 || empty_labelset || K || extra || M) (mod q) */
@@ -366,9 +366,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     crypto_generichash_blake2b_init(&state_az, NULL, 0, 64);
     crypto_generichash_blake2b_update(&state_az, sk, 32);
     crypto_generichash_blake2b_final(&state_az, az, 64);
-    az[0] &= 248;
-    az[31] &= 127;
-    az[31] |= 64;
+    _crypto_sign_ed25519_clamp(az);
 
     crypto_generichash_blake2b_state state_nonce;
     crypto_generichash_blake2b_init(&state_nonce, NULL, 0, 64);
@@ -394,7 +392,6 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     // crypto_generichash_final(&hs, hram, 32);
 
     sc25519_reduce(hram);
-    _crypto_sign_ed25519_clamp(az);
     sc25519_muladd(sig + 32, hram, az, nonce);
 
     sodium_memzero(az, sizeof az);
