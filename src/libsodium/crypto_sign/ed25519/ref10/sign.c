@@ -399,7 +399,6 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     for (i = 0; i < 64; ++i)
         sig_copy[i] = sig[i];
 
-    unsigned char sig[64];
     memcopy(sig, sig_copy, 64);
 
     return 0;
