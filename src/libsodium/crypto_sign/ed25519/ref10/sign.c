@@ -396,16 +396,12 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     FOR(i, 32)
     FOR(j, 32)
     x[i + j] += hram[i] * (u64)az[j];
-    //sc25519_muladd(sig + 32, hram, az, nonce);
+
     modL(sig + 32, x);
 
     sodium_memzero(az, sizeof az);
     sodium_memzero(nonce, sizeof nonce);
 
-    if (siglen_p != NULL)
-    {
-        *siglen_p = 64U;
-    }
     return 0;
 
     // u8 d[64], h[64], r[64], sig_copy[64];
