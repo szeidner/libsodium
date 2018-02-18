@@ -354,6 +354,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     unsigned char az[64];
     unsigned char nonce[64];
     unsigned char hram[64];
+    long long i;
     ge25519_p3 R;
 
     crypto_generichash_blake2b_init(&state, NULL, 0, 64);
