@@ -374,11 +374,11 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     crypto_generichash_blake2b_update(&state_nonce, m, mlen);
     crypto_generichash_blake2b_final(&state_nonce, nonce, 64);
 
-    memmove(sig + 32, sk + 32, 32);
-
     sc25519_reduce(nonce);
     ge25519_scalarmult_base(&R, nonce);
     ge25519_p3_tobytes(sig, &R);
+
+    memmove(sig + 32, sk + 32, 32);
 
     crypto_generichash_blake2b_state state_hram;
     crypto_generichash_blake2b_init(&state_hram, NULL, 0, 64);
