@@ -356,8 +356,6 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     unsigned char hram[64];
     long long i, j, x[64];
     ge25519_p3 R;
-    unsigned char *pk;
-    crypto_sign_ed25519_sk_to_pk(pk, sk);
 
     crypto_generichash_blake2b_init(&state, NULL, 0, 64);
     crypto_generichash_blake2b_update(&state, sk, 32);
@@ -380,8 +378,8 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     ge25519_scalarmult_base(&R, nonce);
     ge25519_p3_tobytes(sig, &R);
 
-    for (i = 32; i < 64; ++i)
-        sig[i] = pk[i - 32];
+    FOR(i, 32)
+    sm[i + 32] = sk[i + 32];
 
     crypto_generichash_blake2b_init(&state, NULL, 0, 64);
     crypto_generichash_blake2b_update(&state, sig, mlen + 64);
