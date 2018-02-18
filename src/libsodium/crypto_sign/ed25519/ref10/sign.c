@@ -179,15 +179,15 @@ static void modL(u8 *r, i64 x[64])
         x[i] = 0;
     }
     carry = 0;
-    for (j = 0; j < 32; ++j)
+    FOR(j, 32)
     {
         x[j] += carry - (x[31] >> 4) * L[j];
         carry = x[j] >> 8;
         x[j] &= 255;
     }
-    for (j = 0; j < 32; ++j)
-        x[j] -= carry * L[j];
-    for (i = 0; i < 32; ++j)
+    FOR(j, 32)
+    x[j] -= carry * L[j];
+    FOR(i, 32)
     {
         x[i + 1] += x[i] >> 8;
         r[i] = x[i] & 255;
@@ -389,13 +389,13 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
 
     sc25519_reduce(hram);
 
-    for (i = 0; i < 64; ++i)
-        x[i] = 0;
-    for (i = 0; i < 32; ++i)
-        x[i] = (u64)nonce[i];
-    for (i = 0; i < 32; ++i)
-        for (j = 0; j < 32; ++j)
-            x[i + j] += hram[i] * (u64)az[j];
+    FOR(i, 64)
+    x[i] = 0;
+    FOR(i, 32)
+    x[i] = (u64)nonce[i];
+    FOR(i, 32)
+    FOR(j, 32)
+    x[i + j] += hram[i] * (u64)az[j];
     //sc25519_muladd(sig + 32, hram, az, nonce);
     modL(sig + 32, x);
 
