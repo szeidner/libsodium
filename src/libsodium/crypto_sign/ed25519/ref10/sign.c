@@ -469,7 +469,7 @@ int _crypto_sign_ed25519_detached(unsigned char *sig, unsigned long long *siglen
     memcpy(az, sk, 32);
     _crypto_sign_ed25519_synthetic_r_hv(&hs, nonce, az);
 #else
-    crypto_generichash(az, 32, sk, 32, '\0', 0);
+    crypto_generichash(az, 64, sk, 32, '\0', 0);
     crypto_generichash_update(&hs, az + 32, 32);
 #endif
 
