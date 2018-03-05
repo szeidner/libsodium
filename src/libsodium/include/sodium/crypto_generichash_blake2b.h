@@ -8,58 +8,58 @@
 #include "export.h"
 
 #ifdef __cplusplus
-# ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wlong-long"
-# endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wlong-long"
+#endif
 extern "C" {
 #endif
 
 #if defined(__IBMC__) || defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-# pragma pack(1)
+#pragma pack(1)
 #else
-# pragma pack(push, 1)
+#pragma pack(push, 1)
 #endif
 
-typedef struct CRYPTO_ALIGN(64) crypto_generichash_blake2b_state {
-    uint64_t h[8];
-    uint64_t t[2];
-    uint64_t f[2];
-    uint8_t  buf[2 * 128];
-    size_t   buflen;
-    uint8_t  last_node;
-} crypto_generichash_blake2b_state;
+// typedef struct CRYPTO_ALIGN(64) crypto_generichash_blake2b_state {
+//     uint64_t h[8];
+//     uint64_t t[2];
+//     uint64_t f[2];
+//     uint8_t  buf[2 * 128];
+//     size_t   buflen;
+//     uint8_t  last_node;
+// } crypto_generichash_blake2b_state;
 
 #if defined(__IBMC__) || defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-# pragma pack()
+#pragma pack()
 #else
-# pragma pack(pop)
+#pragma pack(pop)
 #endif
 
-#define crypto_generichash_blake2b_BYTES_MIN     16U
+#define crypto_generichash_blake2b_BYTES_MIN 16U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_bytes_min(void);
 
-#define crypto_generichash_blake2b_BYTES_MAX     64U
+#define crypto_generichash_blake2b_BYTES_MAX 64U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_bytes_max(void);
 
-#define crypto_generichash_blake2b_BYTES         32U
+#define crypto_generichash_blake2b_BYTES 32U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_bytes(void);
 
-#define crypto_generichash_blake2b_KEYBYTES_MIN  16U
+#define crypto_generichash_blake2b_KEYBYTES_MIN 16U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_keybytes_min(void);
 
-#define crypto_generichash_blake2b_KEYBYTES_MAX  64U
+#define crypto_generichash_blake2b_KEYBYTES_MAX 64U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_keybytes_max(void);
 
-#define crypto_generichash_blake2b_KEYBYTES      32U
+#define crypto_generichash_blake2b_KEYBYTES 32U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_keybytes(void);
 
-#define crypto_generichash_blake2b_SALTBYTES     16U
+#define crypto_generichash_blake2b_SALTBYTES 16U
 SODIUM_EXPORT
 size_t crypto_generichash_blake2b_saltbytes(void);
 
